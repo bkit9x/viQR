@@ -176,7 +176,7 @@ function bindEvents() {
   window.addEventListener("appinstalled", () => {
     state.installPrompt = null;
     updateInstallButton();
-    toast("App da duoc cai.");
+    toast("Cài đặt app thành công!");
   });
 }
 
