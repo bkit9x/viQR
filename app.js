@@ -1,6 +1,43 @@
 const STORAGE_KEY = "viqr.items.v1";
-const THEME_KEY = "viqr.theme.v1";
+const THEME_KEY = "viqr.theme.v2";
 const EXPORT_VERSION = 1;
+const THEMES = ["ocean", "light", "dark", "mint", "sunset", "rose", "forest", "graphite", "aurora", "coral", "steel", "lime"];
+const CONTENT_TEMPLATES = {
+  wifi: {
+    title: "Wi-Fi",
+    content: "WIFI:T:WPA;S:<SSID>;P:<PASSWORD>;;",
+  },
+  vietqr: {
+    title: "VietQR",
+    content: "https://img.vietqr.io/image/<BANK_ID>-<ACCOUNT_NO>-<TEMPLATE>.png?amount=<AMOUNT>&addInfo=<MESSAGE>",
+  },
+  url: {
+    title: "Website",
+    content: "https://example.com",
+  },
+  phone: {
+    title: "Phone",
+    content: "tel:+84901234567",
+  },
+  sms: {
+    title: "SMS",
+    content: "SMSTO:+84901234567:MESSAGE",
+  },
+  email: {
+    title: "Email",
+    content: "mailto:name@example.com?subject=Subject&body=Message",
+  },
+  vcard: {
+    title: "Contact",
+    content: `BEGIN:VCARD
+VERSION:3.0
+N:Last;First;;;
+FN:First Last
+TEL:+84901234567
+EMAIL:name@example.com
+END:VCARD`,
+  },
+};
 
 const state = {
   items: [],
@@ -91,6 +128,10 @@ function bindEvents() {
     button.addEventListener("click", () => applyTheme(button.dataset.themeChoice));
   });
 
+  document.querySelectorAll(".template-chip").forEach((button) => {
+    button.addEventListener("click", () => applyContentTemplate(button.dataset.template));
+  });
+
   els.prevBtn.addEventListener("click", prevItem);
   els.nextBtn.addEventListener("click", nextItem);
   els.rotateBtn.addEventListener("click", rotateItem);
@@ -125,8 +166,8 @@ function bindEvents() {
 
 function loadTheme() {
   const saved = localStorage.getItem(THEME_KEY);
-  if (["light", "dark", "mint", "sunset", "ocean", "rose"].includes(saved)) return saved;
-  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  if (THEMES.includes(saved)) return saved;
+  return "ocean";
 }
 
 function applyTheme(theme) {
@@ -136,7 +177,9 @@ function applyTheme(theme) {
     els.themeColorMeta.setAttribute("content", getThemeColor(theme));
   }
   document.querySelectorAll(".theme-choice").forEach((button) => {
-    button.classList.toggle("active", button.dataset.themeChoice === theme);
+    const active = button.dataset.themeChoice === theme;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
   });
   refreshIcons();
 }
@@ -149,8 +192,14 @@ function getThemeColor(theme) {
     sunset: "#fff7ed",
     ocean: "#071923",
     rose: "#1d1118",
+    forest: "#07140f",
+    graphite: "#111315",
+    aurora: "#0f1224",
+    coral: "#fff5f2",
+    steel: "#f4f7fb",
+    lime: "#f7fee7",
   };
-  return colors[theme] || colors.light;
+  return colors[theme] || colors.ocean;
 }
 
 function loadItems() {
@@ -266,6 +315,15 @@ function setMode(mode) {
   });
   els.contentInput.required = state.mode === "text";
   els.fileInput.required = state.mode === "upload" && !state.editingId;
+}
+
+function applyContentTemplate(templateId) {
+  const template = CONTENT_TEMPLATES[templateId];
+  if (!template) return;
+  els.contentInput.value = template.content;
+  if (!els.titleInput.value.trim()) els.titleInput.value = template.title;
+  els.contentInput.focus();
+  els.contentInput.setSelectionRange(0, els.contentInput.value.length);
 }
 
 async function saveQr(event) {

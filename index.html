@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f7f7f4" id="themeColorMeta">
+  <meta name="theme-color" content="#071923" id="themeColorMeta">
   <title>Vi QR</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
@@ -81,29 +81,53 @@
       <section class="theme-menu" aria-label="Chọn giao diện">
         <h3>Giao diện</h3>
         <div class="theme-grid">
-          <button class="theme-choice" type="button" data-theme-choice="light">
-            <span class="theme-swatch light"></span>
-            <span>Sáng</span>
-          </button>
-          <button class="theme-choice" type="button" data-theme-choice="dark">
-            <span class="theme-swatch dark"></span>
-            <span>Tối</span>
-          </button>
-          <button class="theme-choice" type="button" data-theme-choice="mint">
-            <span class="theme-swatch mint"></span>
-            <span>Mint</span>
-          </button>
-          <button class="theme-choice" type="button" data-theme-choice="sunset">
-            <span class="theme-swatch sunset"></span>
-            <span>Sunset</span>
-          </button>
-          <button class="theme-choice" type="button" data-theme-choice="ocean">
+          <button class="theme-choice" type="button" data-theme-choice="ocean" aria-label="Ocean" title="Ocean">
             <span class="theme-swatch ocean"></span>
             <span>Ocean</span>
           </button>
-          <button class="theme-choice" type="button" data-theme-choice="rose">
+          <button class="theme-choice" type="button" data-theme-choice="light" aria-label="Sáng" title="Sáng">
+            <span class="theme-swatch light"></span>
+            <span>Sáng</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="dark" aria-label="Tối" title="Tối">
+            <span class="theme-swatch dark"></span>
+            <span>Tối</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="mint" aria-label="Mint" title="Mint">
+            <span class="theme-swatch mint"></span>
+            <span>Mint</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="sunset" aria-label="Sunset" title="Sunset">
+            <span class="theme-swatch sunset"></span>
+            <span>Sunset</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="rose" aria-label="Rose" title="Rose">
             <span class="theme-swatch rose"></span>
             <span>Rose</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="forest" aria-label="Forest" title="Forest">
+            <span class="theme-swatch forest"></span>
+            <span>Forest</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="graphite" aria-label="Graphite" title="Graphite">
+            <span class="theme-swatch graphite"></span>
+            <span>Graph</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="aurora" aria-label="Aurora" title="Aurora">
+            <span class="theme-swatch aurora"></span>
+            <span>Aurora</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="coral" aria-label="Coral" title="Coral">
+            <span class="theme-swatch coral"></span>
+            <span>Coral</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="steel" aria-label="Steel" title="Steel">
+            <span class="theme-swatch steel"></span>
+            <span>Steel</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="lime" aria-label="Lime" title="Lime">
+            <span class="theme-swatch lime"></span>
+            <span>Lime</span>
           </button>
         </div>
       </section>
@@ -142,10 +166,40 @@
         </div>
       </div>
 
-      <label class="field mode-field" data-field="text">
+      <div class="field mode-field" data-field="text">
+        <div class="template-strip" aria-label="Mau noi dung QR">
+          <button class="template-chip" type="button" data-template="wifi">
+            <i data-lucide="wifi"></i>
+            <span>Wi-Fi</span>
+          </button>
+          <button class="template-chip" type="button" data-template="vietqr">
+            <i data-lucide="landmark"></i>
+            <span>VietQR</span>
+          </button>
+          <button class="template-chip" type="button" data-template="url">
+            <i data-lucide="link"></i>
+            <span>URL</span>
+          </button>
+          <button class="template-chip" type="button" data-template="phone">
+            <i data-lucide="phone"></i>
+            <span>Phone</span>
+          </button>
+          <button class="template-chip" type="button" data-template="sms">
+            <i data-lucide="message-square"></i>
+            <span>SMS</span>
+          </button>
+          <button class="template-chip" type="button" data-template="email">
+            <i data-lucide="mail"></i>
+            <span>Email</span>
+          </button>
+          <button class="template-chip" type="button" data-template="vcard">
+            <i data-lucide="contact"></i>
+            <span>vCard</span>
+          </button>
+        </div>
         <span>Nội dung</span>
         <textarea id="contentInput" rows="5" placeholder="Nhập text, URL, thông tin chuyển khoản..." required></textarea>
-      </label>
+      </div>
 
       <label class="field mode-field hidden" data-field="upload">
         <span>Ảnh QR</span>
