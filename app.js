@@ -319,11 +319,11 @@ function openQrDialog(item = null) {
   els.dialogTitle.textContent = item ? "Sửa QR" : "Thêm QR";
   els.titleInput.value = item?.title || "";
   els.contentInput.value = item?.kind === "text" ? item.content : "";
-  els.urlInput.value = item?.kind === "url" ? item.content : "";
+  els.urlInput.value = item?.kind === "url" ? item.content : els.urlInput.defaultValue;
   els.fileInput.value = "";
   setMode(item?.kind === "upload" ? "upload" : item?.kind === "url" ? "url" : "text");
   els.qrDialog.showModal();
-  els.titleInput.focus();
+  (state.mode === "url" ? els.urlInput : els.titleInput).focus();
 }
 
 function closeQrDialog() {
