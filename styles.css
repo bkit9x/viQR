@@ -449,7 +449,6 @@ p {
   background:
     linear-gradient(#fff, #fff) padding-box,
     linear-gradient(135deg, var(--brand), var(--brand-2) 52%, var(--accent)) border-box;
-  box-shadow: var(--shadow), 0 0 0 8px rgba(255, 255, 255, .34), 0 0 42px var(--glow);
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;

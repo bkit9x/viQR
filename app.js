@@ -47,6 +47,7 @@ const state = {
   syncAction: "export",
   touchStartX: 0,
   touchStartY: 0,
+  installPrompt: null,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -55,6 +56,7 @@ const els = {
   menuBtn: $("#menuBtn"),
   menuDialog: $("#menuDialog"),
   closeMenuDialog: $("#closeMenuDialog"),
+  appInstallBtn: $("#appInstallBtn"),
   menuImportBtn: $("#menuImportBtn"),
   menuExportBtn: $("#menuExportBtn"),
   newQrBtn: $("#newQrBtn"),
@@ -100,11 +102,13 @@ function boot() {
   bindEvents();
   render();
   refreshIcons();
+  registerServiceWorker();
 }
 
 function bindEvents() {
   els.menuBtn.addEventListener("click", () => els.menuDialog.showModal());
   els.closeMenuDialog.addEventListener("click", () => els.menuDialog.close());
+  els.appInstallBtn.addEventListener("click", installApp);
   els.menuImportBtn.addEventListener("click", () => {
     els.menuDialog.close();
     openSyncDialog("import");
@@ -161,6 +165,18 @@ function bindEvents() {
   els.qrStage.addEventListener("keydown", (event) => {
     if (event.key === "ArrowLeft") prevItem();
     if (event.key === "ArrowRight") nextItem();
+  });
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    state.installPrompt = event;
+    updateInstallButton();
+  });
+
+  window.addEventListener("appinstalled", () => {
+    state.installPrompt = null;
+    updateInstallButton();
+    toast("App da duoc cai.");
   });
 }
 
@@ -586,6 +602,28 @@ function downloadJson(value, filename) {
   link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  if (!["http:", "https:"].includes(window.location.protocol)) return;
+  navigator.serviceWorker.register("./sw.js").catch((error) => {
+    console.warn("Service worker registration failed", error);
+  });
+}
+
+async function installApp() {
+  if (!state.installPrompt) return;
+  const promptEvent = state.installPrompt;
+  state.installPrompt = null;
+  updateInstallButton();
+  els.menuDialog.close();
+  promptEvent.prompt();
+  await promptEvent.userChoice;
+}
+
+function updateInstallButton() {
+  els.appInstallBtn.classList.toggle("hidden", !state.installPrompt);
 }
 
 function toast(message, inModal = false) {

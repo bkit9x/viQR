@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Vi QR">
+  <rect width="64" height="64" rx="14" fill="#071923"/>
+  <path d="M16 18h32a8 8 0 0 1 8 8v22a8 8 0 0 1-8 8H16a8 8 0 0 1-8-8V26a8 8 0 0 1 8-8Z" fill="#102631" stroke="#22d3ee" stroke-width="3"/>
+  <path d="M18 18 43 9c4-1.4 8 1.5 8 5.7V18H18Z" fill="#0f2f3f" stroke="#38bdf8" stroke-width="3" stroke-linejoin="round"/>
+  <rect x="39" y="29" width="17" height="13" rx="6" fill="#2563eb"/>
+  <circle cx="45" cy="35.5" r="2.5" fill="#eaf7fb"/>
+  <rect x="15" y="27" width="8" height="8" fill="#eaf7fb"/>
+  <rect x="17" y="29" width="4" height="4" fill="#071923"/>
+  <rect x="28" y="27" width="8" height="8" fill="#eaf7fb"/>
+  <rect x="30" y="29" width="4" height="4" fill="#071923"/>
+  <rect x="15" y="40" width="8" height="8" fill="#eaf7fb"/>
+  <rect x="17" y="42" width="4" height="4" fill="#071923"/>
+  <path d="M27 40h4v4h-4zm7 0h4v4h-4zm-7 7h4v4h-4zm10 0h4v4h-4zm-4-4h4v4h-4z" fill="#a3e635"/>
+</svg>
