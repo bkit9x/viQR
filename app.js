@@ -79,6 +79,7 @@ const els = {
   cancelQrBtn: $("#cancelQrBtn"),
   titleInput: $("#titleInput"),
   contentInput: $("#contentInput"),
+  urlInput: $("#urlInput"),
   fileInput: $("#fileInput"),
   syncDialog: $("#syncDialog"),
   syncForm: $("#syncForm"),
@@ -218,7 +219,6 @@ function loadItems() {
   try {
     const rawItems = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     state.items = sortItemsByCreatedAt(rawItems.map((item) => {
-      if (item.kind === "url") return { ...item, kind: "upload", image: item.image };
       return item;
     }));
   } catch {
@@ -272,7 +272,7 @@ async function renderCurrent() {
 
   els.qrFrame.style.setProperty("--angle", `${item.angle || 0}deg`);
 
-  if (item.kind === "text") {
+  if (item.kind === "text" || item.kind === "url") {
     const canvas = document.createElement("canvas");
     els.qrFrame.appendChild(canvas);
 
@@ -319,8 +319,9 @@ function openQrDialog(item = null) {
   els.dialogTitle.textContent = item ? "Sửa QR" : "Thêm QR";
   els.titleInput.value = item?.title || "";
   els.contentInput.value = item?.kind === "text" ? item.content : "";
+  els.urlInput.value = item?.kind === "url" ? item.content : "";
   els.fileInput.value = "";
-  setMode(item?.kind === "upload" ? "upload" : "text");
+  setMode(item?.kind === "upload" ? "upload" : item?.kind === "url" ? "url" : "text");
   els.qrDialog.showModal();
   els.titleInput.focus();
 }
@@ -332,7 +333,7 @@ function closeQrDialog() {
 }
 
 function setMode(mode) {
-  state.mode = mode === "upload" ? "upload" : "text";
+  state.mode = ["text", "url", "upload"].includes(mode) ? mode : "text";
   document.querySelectorAll(".segment").forEach((button) => {
     button.classList.toggle("active", button.dataset.mode === state.mode);
   });
@@ -340,7 +341,11 @@ function setMode(mode) {
     field.classList.toggle("hidden", field.dataset.field !== state.mode);
   });
   els.contentInput.required = state.mode === "text";
+  els.urlInput.required = state.mode === "url";
   els.fileInput.required = state.mode === "upload" && !state.editingId;
+  els.contentInput.disabled = state.mode !== "text";
+  els.urlInput.disabled = state.mode !== "url";
+  els.fileInput.disabled = state.mode !== "upload";
 }
 
 function applyContentTemplate(templateId) {
@@ -370,6 +375,11 @@ async function saveQr(event) {
   if (state.mode === "text") {
     next.content = els.contentInput.value.trim();
     if (!next.content) return toast("Cần nhập nội dung QR.", true);
+  }
+
+  if (state.mode === "url") {
+    next.content = els.urlInput.value.trim();
+    if (!next.content) return toast("Cần nhập URL.", true);
   }
 
   if (state.mode === "upload") {
@@ -433,7 +443,7 @@ function rotateItem() {
 async function copyCurrentContent() {
   const item = currentItem();
   if (!item) return;
-  const value = item.kind === "text" ? item.content : item.image;
+  const value = item.kind === "upload" ? item.image : item.content;
   try {
     await navigator.clipboard.writeText(value);
     toast("Đã sao chép.");
@@ -446,7 +456,7 @@ function downloadCurrentImage() {
   const item = currentItem();
   if (!item) return;
 
-  if (item.kind === "text") {
+  if (item.kind === "text" || item.kind === "url") {
     const canvas = els.qrFrame.querySelector("canvas");
     if (!canvas) return toast("Chưa có ảnh QR để tải.");
     const link = document.createElement("a");
@@ -541,7 +551,6 @@ async function importData(password) {
   const payload = await decryptJson(encrypted, password);
   if (!Array.isArray(payload.items)) throw new Error("Invalid payload");
   state.items = sortItemsByCreatedAt(payload.items.map((item) => {
-    if (item.kind === "url") return { ...item, kind: "upload", image: item.image };
     return item;
   }));
   state.current = 0;

@@ -176,6 +176,7 @@
         <span>Kiểu QR</span>
         <div class="segments" role="tablist" aria-label="Kiểu QR">
           <button class="segment active" type="button" data-mode="text">Nội dung</button>
+          <button class="segment" type="button" data-mode="url">URL</button>
           <button class="segment" type="button" data-mode="upload">Ảnh QR</button>
         </div>
       </div>
@@ -210,6 +211,11 @@
         <span>Nội dung</span>
         <textarea id="contentInput" rows="5" placeholder="Nhập text, URL, thông tin chuyển khoản..." required></textarea>
       </div>
+
+      <label class="field mode-field hidden" data-field="url">
+        <span>URL</span>
+        <input id="urlInput" type="url" inputmode="url" value="https://img.vietqr.io/image/MB-70047705081999-compact.png">
+      </label>
 
       <label class="field mode-field hidden" data-field="upload">
         <span>Ảnh QR</span>
