@@ -272,7 +272,7 @@ async function renderCurrent() {
 
   els.qrFrame.style.setProperty("--angle", `${item.angle || 0}deg`);
 
-  if (item.kind === "text" || item.kind === "url") {
+  if (item.kind === "text") {
     const canvas = document.createElement("canvas");
     els.qrFrame.appendChild(canvas);
 
@@ -302,7 +302,11 @@ async function renderCurrent() {
 
   const image = document.createElement("img");
   image.alt = item.title;
-  image.src = item.image;
+  image.src = item.kind === "url" ? item.content : item.image;
+  image.onerror = () => {
+    image.remove();
+    showQrError("Không tải được ảnh QR từ link này.");
+  };
   els.qrFrame.appendChild(image);
 }
 
@@ -379,7 +383,7 @@ async function saveQr(event) {
 
   if (state.mode === "url") {
     next.content = els.urlInput.value.trim();
-    if (!next.content) return toast("Cần nhập URL.", true);
+    if (!next.content) return toast("Cần nhập link ảnh QR.", true);
   }
 
   if (state.mode === "upload") {
@@ -456,7 +460,7 @@ function downloadCurrentImage() {
   const item = currentItem();
   if (!item) return;
 
-  if (item.kind === "text" || item.kind === "url") {
+  if (item.kind === "text") {
     const canvas = els.qrFrame.querySelector("canvas");
     if (!canvas) return toast("Chưa có ảnh QR để tải.");
     const link = document.createElement("a");
@@ -468,7 +472,7 @@ function downloadCurrentImage() {
   }
 
   const link = document.createElement("a");
-  link.href = item.image;
+  link.href = item.kind === "url" ? item.content : item.image;
   link.download = `${safeFilename(item.title)}.png`;
   link.click();
   toast("Đã tải ảnh QR.");
