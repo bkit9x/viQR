@@ -1,6 +1,10 @@
-# viQR
+víQR là ứng dụng web để lưu, xem và quản lý nhiều mã QR ngay trên trình duyệt. Ứng dụng ưu tiên trải nghiệm mobile-first, không cần backend, không cần tài khoản và lưu dữ liệu cục bộ trên thiết bị của người dùng.
 
-viQR là ứng dụng web tĩnh để lưu, xem và quản lý nhiều mã QR ngay trên trình duyệt. Ứng dụng ưu tiên trải nghiệm mobile-first, không cần backend, không cần tài khoản và lưu dữ liệu cục bộ trên thiết bị của người dùng.
+## Vì sao có víQR
+
+viQR xuất phát từ vài nhu cầu rất đời thường: cần đưa mã QR để kết bạn, cần nhận tiền nhanh nhưng mở app ngân hàng thì lâu, hoặc đã lưu ảnh QR trong máy rồi nhưng lúc cần lại không nhớ nằm ở thư mục nào. Có những mã dùng lặp lại mỗi ngày như QR tài khoản ngân hàng, QR Wi-Fi, QR liên hệ, QR nhóm chat hay QR thanh toán. Nếu mỗi lần dùng đều phải mở đúng app, tìm đúng màn hình, chờ tải hoặc lục lại thư viện ảnh thì khá mất thời gian.
+
+Mục tiêu của viQR là gom các mã QR hay dùng vào một chỗ, mở ra là thấy ngay, có thể vuốt qua lại, phóng lớn để người khác quét, và vẫn hoạt động cục bộ trên thiết bị cá nhân. Ứng dụng không cố thay thế app ngân hàng hay danh bạ, mà đóng vai trò như một ví QR nhỏ gọn cho các tình huống cần chia sẻ nhanh.
 
 ## Tính năng
 
