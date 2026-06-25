@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f7f4" id="themeColorMeta">
+  <title>Vi QR</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <button class="icon-btn" id="menuBtn" type="button" aria-label="Menu" title="Menu">
+        <i data-lucide="menu"></i>
+      </button>
+      <div class="brand">
+        <h1 id="qrTitle">Mã QR</h1>
+      </div>
+      <button class="icon-btn" id="newQrBtn" type="button" aria-label="Thêm QR" title="Thêm QR">
+        <i data-lucide="plus"></i>
+      </button>
+    </header>
+
+    <section class="viewer" aria-label="Xem mã QR">
+      <button class="nav-btn" id="prevBtn" type="button" aria-label="QR trước" title="QR trước">
+        <i data-lucide="chevron-left"></i>
+      </button>
+
+      <article class="qr-stage" id="qrStage" tabindex="0" aria-live="polite">
+        <div class="empty-state" id="emptyState">
+          <i data-lucide="qr-code"></i>
+          <h2>Chưa có QR</h2>
+          <button class="text-btn primary" id="emptyAddBtn" type="button">
+            <i data-lucide="plus"></i>
+            <span>Thêm QR</span>
+          </button>
+        </div>
+
+        <div class="qr-card hidden" id="qrCard">
+          <div class="qr-frame" id="qrFrame" aria-label="Nhấn giữ để hiện tùy chọn"></div>
+          <div class="actions" id="quickActions">
+            <button class="icon-btn" id="rotateBtn" type="button" aria-label="Xoay QR" title="Xoay QR">
+              <i data-lucide="rotate-cw"></i>
+            </button>
+            <button class="icon-btn" id="copyBtn" type="button" aria-label="Sao chép nội dung" title="Sao chép nội dung">
+              <i data-lucide="copy"></i>
+            </button>
+            <button class="icon-btn" id="downloadImageBtn" type="button" aria-label="Tải ảnh QR" title="Tải ảnh QR">
+              <i data-lucide="image-down"></i>
+            </button>
+            <button class="icon-btn" id="editBtn" type="button" aria-label="Sửa QR" title="Sửa QR">
+              <i data-lucide="pencil"></i>
+            </button>
+            <button class="icon-btn danger" id="deleteBtn" type="button" aria-label="Xóa QR" title="Xóa QR">
+              <i data-lucide="trash-2"></i>
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <button class="nav-btn" id="nextBtn" type="button" aria-label="QR sau" title="QR sau">
+        <i data-lucide="chevron-right"></i>
+      </button>
+    </section>
+
+    <footer class="pager" aria-label="Vị trí QR">
+      <span id="qrIndex">0</span>
+      <span>/</span>
+      <span id="qrTotal">0</span>
+    </footer>
+  </main>
+
+  <dialog class="modal compact" id="menuDialog">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h2>Menu</h2>
+        <button class="icon-btn" id="closeMenuDialog" type="button" aria-label="Đóng" title="Đóng">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <section class="theme-menu" aria-label="Chọn giao diện">
+        <h3>Giao diện</h3>
+        <div class="theme-grid">
+          <button class="theme-choice" type="button" data-theme-choice="light">
+            <span class="theme-swatch light"></span>
+            <span>Sáng</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="dark">
+            <span class="theme-swatch dark"></span>
+            <span>Tối</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="mint">
+            <span class="theme-swatch mint"></span>
+            <span>Mint</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="sunset">
+            <span class="theme-swatch sunset"></span>
+            <span>Sunset</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="ocean">
+            <span class="theme-swatch ocean"></span>
+            <span>Ocean</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="rose">
+            <span class="theme-swatch rose"></span>
+            <span>Rose</span>
+          </button>
+        </div>
+      </section>
+      <div class="menu-list">
+        <button class="menu-item" id="menuImportBtn" type="button">
+          <i data-lucide="upload"></i>
+          <span>Nhập dữ liệu</span>
+        </button>
+        <button class="menu-item" id="menuExportBtn" type="button">
+          <i data-lucide="download"></i>
+          <span>Xuất dữ liệu</span>
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="modal" id="qrDialog">
+    <form class="modal-panel" id="qrForm" method="dialog">
+      <div class="modal-head">
+        <h2 id="dialogTitle">Thêm QR</h2>
+        <button class="icon-btn" id="closeQrDialog" type="button" aria-label="Đóng" title="Đóng">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <label class="field">
+        <span>Tiêu đề</span>
+        <input id="titleInput" type="text" maxlength="80" placeholder="Wi-Fi văn phòng" required>
+      </label>
+
+      <div class="field">
+        <span>Kiểu QR</span>
+        <div class="segments" role="tablist" aria-label="Kiểu QR">
+          <button class="segment active" type="button" data-mode="text">Nội dung</button>
+          <button class="segment" type="button" data-mode="upload">Ảnh QR</button>
+        </div>
+      </div>
+
+      <label class="field mode-field" data-field="text">
+        <span>Nội dung</span>
+        <textarea id="contentInput" rows="5" placeholder="Nhập text, URL, thông tin chuyển khoản..." required></textarea>
+      </label>
+
+      <label class="field mode-field hidden" data-field="upload">
+        <span>Ảnh QR</span>
+        <input id="fileInput" type="file" accept="image/*">
+      </label>
+
+      <div class="form-actions">
+        <button class="text-btn" id="cancelQrBtn" type="button">Hủy</button>
+        <button class="text-btn primary" type="submit">
+          <i data-lucide="save"></i>
+          <span>Lưu</span>
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal" id="syncDialog">
+    <form class="modal-panel" id="syncForm" method="dialog">
+      <div class="modal-head">
+        <h2 id="syncTitle">Đồng bộ dữ liệu</h2>
+        <button class="icon-btn" id="closeSyncDialog" type="button" aria-label="Đóng" title="Đóng">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <p class="hint" id="syncHint"></p>
+
+      <label class="field">
+        <span>Mật khẩu</span>
+        <input id="passwordInput" type="password" minlength="6" autocomplete="new-password" required>
+      </label>
+
+      <label class="field hidden" id="importFileField">
+        <span>File dữ liệu</span>
+        <input id="importFileInput" type="file" accept="application/json,.json">
+      </label>
+
+      <div class="form-actions">
+        <button class="text-btn" id="cancelSyncBtn" type="button">Hủy</button>
+        <button class="text-btn primary" id="syncSubmitBtn" type="submit">
+          <i data-lucide="lock"></i>
+          <span>Tiếp tục</span>
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
