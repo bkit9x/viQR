@@ -7,25 +7,21 @@ const CONTENT_TEMPLATES = {
     title: "Wi-Fi",
     content: "WIFI:T:WPA;S:<SSID>;P:<PASSWORD>;;",
   },
-  vietqr: {
-    title: "VietQR",
-    content: "https://img.vietqr.io/image/<BANK_ID>-<ACCOUNT_NO>-<TEMPLATE>.png?amount=<AMOUNT>&addInfo=<MESSAGE>",
-  },
   url: {
     title: "Website",
-    content: "https://example.com",
+    content: "https://kha.is-a.dev/viQR",
   },
   phone: {
     title: "Phone",
-    content: "tel:+84901234567",
+    content: "tel:+84",
   },
   sms: {
     title: "SMS",
-    content: "SMSTO:+84901234567:MESSAGE",
+    content: "SMSTO:+84:MESSAGE",
   },
   email: {
     title: "Email",
-    content: "mailto:name@example.com?subject=Subject&body=Message",
+    content: "mailto:hkhadev@gmail.com?subject=Subject&body=Message",
   },
   vcard: {
     title: "Contact",
@@ -33,8 +29,8 @@ const CONTENT_TEMPLATES = {
 VERSION:3.0
 N:Last;First;;;
 FN:First Last
-TEL:+84901234567
-EMAIL:name@example.com
+TEL:+84
+EMAIL:hkhadev@gmail.com
 END:VCARD`,
   },
 };
@@ -221,13 +217,27 @@ function getThemeColor(theme) {
 function loadItems() {
   try {
     const rawItems = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    state.items = rawItems.map((item) => {
+    state.items = sortItemsByCreatedAt(rawItems.map((item) => {
       if (item.kind === "url") return { ...item, kind: "upload", image: item.image };
       return item;
-    });
+    }));
   } catch {
     state.items = [];
   }
+}
+
+function sortItemsByCreatedAt(items) {
+  return items
+    .map((item, index) => ({ item, index }))
+    .sort((left, right) => {
+      const leftTime = Date.parse(left.item.createdAt || "");
+      const rightTime = Date.parse(right.item.createdAt || "");
+      if (Number.isNaN(leftTime) && Number.isNaN(rightTime)) return left.index - right.index;
+      if (Number.isNaN(leftTime)) return 1;
+      if (Number.isNaN(rightTime)) return -1;
+      return leftTime - rightTime || left.index - right.index;
+    })
+    .map(({ item }) => item);
 }
 
 function persist() {
@@ -383,8 +393,8 @@ async function saveQr(event) {
     return;
   }
 
-  state.items.unshift(next);
-  state.current = 0;
+  state.items.push(next);
+  state.current = state.items.length - 1;
   closeQrDialog();
   persist();
   render();
@@ -530,10 +540,10 @@ async function importData(password) {
   const encrypted = JSON.parse(await file.text());
   const payload = await decryptJson(encrypted, password);
   if (!Array.isArray(payload.items)) throw new Error("Invalid payload");
-  state.items = payload.items.map((item) => {
+  state.items = sortItemsByCreatedAt(payload.items.map((item) => {
     if (item.kind === "url") return { ...item, kind: "upload", image: item.image };
     return item;
-  });
+  }));
   state.current = 0;
   persist();
   render();
