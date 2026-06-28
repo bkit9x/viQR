@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#071923" id="themeColorMeta">
-  <meta name="description" content="Quan ly va hien thi QR ca nhan.">
+  <meta name="description" content="Quản lý và hiển thị QR, ảnh cá nhân.">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Vi QR">
@@ -24,14 +24,14 @@
         <i data-lucide="menu"></i>
       </button>
       <div class="brand">
-        <h1 id="qrTitle">Mã QR</h1>
+        <h1 id="qrTitle">QR / Ảnh</h1>
       </div>
-      <button class="icon-btn" id="newQrBtn" type="button" aria-label="Thêm QR" title="Thêm QR">
+      <button class="icon-btn" id="newQrBtn" type="button" aria-label="Thêm QR hoặc ảnh" title="Thêm QR hoặc ảnh">
         <i data-lucide="plus"></i>
       </button>
     </header>
 
-    <section class="viewer" aria-label="Xem mã QR">
+    <section class="viewer" aria-label="Xem QR hoặc ảnh">
       <button class="nav-btn" id="prevBtn" type="button" aria-label="QR trước" title="QR trước">
         <i data-lucide="chevron-left"></i>
       </button>
@@ -39,10 +39,10 @@
       <article class="qr-stage" id="qrStage" tabindex="0" aria-live="polite">
         <div class="empty-state" id="emptyState">
           <i data-lucide="qr-code"></i>
-          <h2>Chưa có QR</h2>
+          <h2>Chưa có mục nào</h2>
           <button class="text-btn primary" id="emptyAddBtn" type="button">
             <i data-lucide="plus"></i>
-            <span>Thêm QR</span>
+            <span>Thêm QR/ảnh</span>
           </button>
         </div>
 
@@ -55,13 +55,13 @@
             <button class="icon-btn" id="copyBtn" type="button" aria-label="Sao chép nội dung" title="Sao chép nội dung">
               <i data-lucide="copy"></i>
             </button>
-            <button class="icon-btn" id="downloadImageBtn" type="button" aria-label="Tải ảnh QR" title="Tải ảnh QR">
+            <button class="icon-btn" id="downloadImageBtn" type="button" aria-label="Tải ảnh" title="Tải ảnh">
               <i data-lucide="image-down"></i>
             </button>
-            <button class="icon-btn" id="editBtn" type="button" aria-label="Sửa QR" title="Sửa QR">
+            <button class="icon-btn" id="editBtn" type="button" aria-label="Sửa mục" title="Sửa mục">
               <i data-lucide="pencil"></i>
             </button>
-            <button class="icon-btn danger" id="deleteBtn" type="button" aria-label="Xóa QR" title="Xóa QR">
+            <button class="icon-btn danger" id="deleteBtn" type="button" aria-label="Xóa mục" title="Xóa mục">
               <i data-lucide="trash-2"></i>
             </button>
           </div>
@@ -73,7 +73,7 @@
       </button>
     </section>
 
-    <footer class="pager" aria-label="Vị trí QR">
+    <footer class="pager" aria-label="Vị trí mục">
       <span id="qrIndex">0</span>
       <span>/</span>
       <span id="qrTotal">0</span>
@@ -154,6 +154,11 @@
           <i data-lucide="download"></i>
           <span>Xuất dữ liệu</span>
         </button>
+        <button class="menu-item" id="menuLockBtn" type="button">
+          <i data-lucide="shield-check"></i>
+          <span>Khóa màn hình</span>
+          <small id="lockStatus">Tắt</small>
+        </button>
       </div>
     </div>
   </dialog>
@@ -161,7 +166,7 @@
   <dialog class="modal" id="qrDialog">
     <form class="modal-panel" id="qrForm" method="dialog">
       <div class="modal-head">
-        <h2 id="dialogTitle">Thêm QR</h2>
+        <h2 id="dialogTitle">Thêm QR/ảnh</h2>
         <button class="icon-btn" id="closeQrDialog" type="button" aria-label="Đóng" title="Đóng">
           <i data-lucide="x"></i>
         </button>
@@ -173,11 +178,11 @@
       </label>
 
       <div class="field">
-        <span>Kiểu QR</span>
-        <div class="segments" role="tablist" aria-label="Kiểu QR">
+        <span>Kiểu nội dung</span>
+        <div class="segments" role="tablist" aria-label="Kiểu nội dung">
           <button class="segment active" type="button" data-mode="text">Nội dung</button>
           <button class="segment" type="button" data-mode="url">Link ảnh</button>
-          <button class="segment" type="button" data-mode="upload">Ảnh QR</button>
+          <button class="segment" type="button" data-mode="upload">Ảnh</button>
         </div>
       </div>
 
@@ -213,12 +218,12 @@
       </div>
 
       <label class="field mode-field hidden" data-field="url">
-        <span>Link ảnh QR</span>
-        <input id="urlInput" type="url" inputmode="url" value="https://img.vietqr.io/image/MB-70047705081999-compact.png">
+        <span>Link ảnh</span>
+        <input id="urlInput" type="url" inputmode="url" placeholder="https://img.vietqr.io/image/MB-70047705081999-compact.png">
       </label>
 
       <label class="field mode-field hidden" data-field="upload">
-        <span>Ảnh QR</span>
+        <span>Ảnh từ máy</span>
         <input id="fileInput" type="file" accept="image/*">
       </label>
 
@@ -260,6 +265,56 @@
           <span>Tiếp tục</span>
         </button>
       </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal compact" id="lockSettingsDialog">
+    <form class="modal-panel" id="lockSettingsForm" method="dialog">
+      <div class="modal-head">
+        <h2>Khóa màn hình</h2>
+        <button class="icon-btn" id="closeLockSettingsDialog" type="button" aria-label="Đóng" title="Đóng">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <label class="check-field">
+        <input id="lockEnabledInput" type="checkbox">
+        <span>Bật khóa mỗi phiên mở web</span>
+      </label>
+
+      <label class="field">
+        <span>Mật khẩu</span>
+        <input id="lockPasswordInput" type="password" autocomplete="new-password" placeholder="Nhập mật khẩu tùy ý">
+      </label>
+
+      <p class="hint">Mặc định tắt. Khi bật, app sẽ hỏi mật khẩu một lần trong mỗi phiên mở web.</p>
+
+      <div class="form-actions">
+        <button class="text-btn" id="cancelLockSettingsBtn" type="button">Hủy</button>
+        <button class="text-btn primary" type="submit">
+          <i data-lucide="save"></i>
+          <span>Lưu</span>
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal compact lock-dialog" id="unlockDialog">
+    <form class="modal-panel" id="unlockForm" method="dialog">
+      <div class="lock-head">
+        <i data-lucide="lock-keyhole"></i>
+        <h2>Mở khóa viQR</h2>
+      </div>
+
+      <label class="field">
+        <span>Mật khẩu</span>
+        <input id="unlockPasswordInput" type="password" autocomplete="current-password" required>
+      </label>
+
+      <button class="text-btn primary lock-submit" type="submit">
+        <i data-lucide="unlock-keyhole"></i>
+        <span>Mở khóa</span>
+      </button>
     </form>
   </dialog>
 

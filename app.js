@@ -1,5 +1,7 @@
 const STORAGE_KEY = "viqr.items.v1";
 const THEME_KEY = "viqr.theme.v2";
+const LOCK_KEY = "viqr.lock.v1";
+const LOCK_SESSION_KEY = "viqr.lock.unlocked.v1";
 const EXPORT_VERSION = 1;
 const THEMES = ["ocean", "light", "dark", "mint", "sunset", "rose", "forest", "graphite", "aurora", "coral", "steel", "lime"];
 const CONTENT_TEMPLATES = {
@@ -44,6 +46,10 @@ const state = {
   touchStartX: 0,
   touchStartY: 0,
   installPrompt: null,
+  lockSettings: {
+    enabled: false,
+    passwordHash: "",
+  },
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -55,6 +61,8 @@ const els = {
   appInstallBtn: $("#appInstallBtn"),
   menuImportBtn: $("#menuImportBtn"),
   menuExportBtn: $("#menuExportBtn"),
+  menuLockBtn: $("#menuLockBtn"),
+  lockStatus: $("#lockStatus"),
   newQrBtn: $("#newQrBtn"),
   emptyAddBtn: $("#emptyAddBtn"),
   prevBtn: $("#prevBtn"),
@@ -90,16 +98,28 @@ const els = {
   importFileInput: $("#importFileInput"),
   closeSyncDialog: $("#closeSyncDialog"),
   cancelSyncBtn: $("#cancelSyncBtn"),
+  lockSettingsDialog: $("#lockSettingsDialog"),
+  lockSettingsForm: $("#lockSettingsForm"),
+  closeLockSettingsDialog: $("#closeLockSettingsDialog"),
+  cancelLockSettingsBtn: $("#cancelLockSettingsBtn"),
+  lockEnabledInput: $("#lockEnabledInput"),
+  lockPasswordInput: $("#lockPasswordInput"),
+  unlockDialog: $("#unlockDialog"),
+  unlockForm: $("#unlockForm"),
+  unlockPasswordInput: $("#unlockPasswordInput"),
   toast: $("#toast"),
 };
 
 function boot() {
   applyTheme(loadTheme());
+  loadLockSettings();
   loadItems();
   bindEvents();
   render();
+  updateLockStatus();
   refreshIcons();
   registerServiceWorker();
+  requestSessionUnlock();
 }
 
 function bindEvents() {
@@ -113,6 +133,10 @@ function bindEvents() {
   els.menuExportBtn.addEventListener("click", () => {
     els.menuDialog.close();
     openSyncDialog("export");
+  });
+  els.menuLockBtn.addEventListener("click", () => {
+    els.menuDialog.close();
+    openLockSettingsDialog();
   });
 
   els.newQrBtn.addEventListener("click", () => openQrDialog());
@@ -143,6 +167,11 @@ function bindEvents() {
   els.closeSyncDialog.addEventListener("click", closeSyncDialog);
   els.cancelSyncBtn.addEventListener("click", closeSyncDialog);
   els.syncForm.addEventListener("submit", handleSync);
+  els.closeLockSettingsDialog.addEventListener("click", closeLockSettingsDialog);
+  els.cancelLockSettingsBtn.addEventListener("click", closeLockSettingsDialog);
+  els.lockSettingsForm.addEventListener("submit", saveLockSettings);
+  els.unlockForm.addEventListener("submit", unlockSession);
+  els.unlockDialog.addEventListener("cancel", (event) => event.preventDefault());
 
   els.qrStage.addEventListener("touchstart", (event) => {
     const touch = event.changedTouches[0];
@@ -244,6 +273,105 @@ function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
 }
 
+function loadLockSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(LOCK_KEY) || "{}");
+    state.lockSettings = {
+      enabled: saved.enabled === true,
+      passwordHash: typeof saved.passwordHash === "string" ? saved.passwordHash : "",
+    };
+  } catch {
+    state.lockSettings = { enabled: false, passwordHash: "" };
+  }
+}
+
+function persistLockSettings() {
+  localStorage.setItem(LOCK_KEY, JSON.stringify(state.lockSettings));
+}
+
+function updateLockStatus() {
+  els.lockStatus.textContent = state.lockSettings.enabled ? "Bật" : "Tắt";
+}
+
+function openLockSettingsDialog() {
+  els.lockEnabledInput.checked = state.lockSettings.enabled;
+  els.lockPasswordInput.value = "";
+  els.lockPasswordInput.placeholder = state.lockSettings.passwordHash
+    ? "Để trống nếu giữ mật khẩu cũ"
+    : "Nhập mật khẩu tùy ý";
+  els.lockSettingsDialog.showModal();
+  els.lockEnabledInput.focus();
+}
+
+function closeLockSettingsDialog() {
+  els.lockSettingsDialog.close();
+  els.lockSettingsForm.reset();
+}
+
+async function saveLockSettings(event) {
+  event.preventDefault();
+  const enabled = els.lockEnabledInput.checked;
+  const password = els.lockPasswordInput.value;
+
+  if (!enabled) {
+    state.lockSettings = { enabled: false, passwordHash: "" };
+    sessionStorage.removeItem(LOCK_SESSION_KEY);
+    persistLockSettings();
+    updateLockStatus();
+    closeLockSettingsDialog();
+    toast("Đã tắt khóa màn hình.");
+    return;
+  }
+
+  const passwordHash = password
+    ? await passwordDigest(password)
+    : state.lockSettings.passwordHash;
+
+  if (!passwordHash) {
+    return toast("Cần nhập mật khẩu để bật khóa.", true);
+  }
+
+  state.lockSettings = { enabled: true, passwordHash };
+  sessionStorage.setItem(LOCK_SESSION_KEY, "1");
+  persistLockSettings();
+  updateLockStatus();
+  closeLockSettingsDialog();
+  toast("Đã bật khóa màn hình.");
+}
+
+function requestSessionUnlock() {
+  if (!state.lockSettings.enabled || !state.lockSettings.passwordHash) return;
+  if (sessionStorage.getItem(LOCK_SESSION_KEY) === "1") return;
+  setTimeout(() => {
+    els.unlockPasswordInput.value = "";
+    els.unlockDialog.showModal();
+    els.unlockPasswordInput.focus();
+    refreshIcons();
+  }, 0);
+}
+
+async function unlockSession(event) {
+  event.preventDefault();
+  const passwordHash = await passwordDigest(els.unlockPasswordInput.value);
+  if (passwordHash !== state.lockSettings.passwordHash) {
+    els.unlockPasswordInput.value = "";
+    els.unlockPasswordInput.focus();
+    return toast("Mật khẩu không đúng.", true);
+  }
+  sessionStorage.setItem(LOCK_SESSION_KEY, "1");
+  els.unlockDialog.close();
+  toast("Đã mở khóa.");
+}
+
+async function passwordDigest(password) {
+  const encoded = new TextEncoder().encode(password);
+  if (crypto.subtle) {
+    const digest = await crypto.subtle.digest("SHA-256", encoded);
+    return `sha256:${toBase64(new Uint8Array(digest))}`;
+  }
+  return `raw:${btoa(unescape(encodeURIComponent(password)))}`;
+}
+
 function currentItem() {
   return state.items[state.current] || null;
 }
@@ -267,7 +395,7 @@ function render() {
 async function renderCurrent() {
   const item = currentItem();
   els.qrFrame.innerHTML = "";
-  els.qrTitle.textContent = item?.title || "Mã QR";
+  els.qrTitle.textContent = item?.title || "QR / Ảnh";
   if (!item) return;
 
   els.qrFrame.style.setProperty("--angle", `${item.angle || 0}deg`);
@@ -305,7 +433,7 @@ async function renderCurrent() {
   image.src = item.kind === "url" ? item.content : item.image;
   image.onerror = () => {
     image.remove();
-    showQrError("Không tải được ảnh QR từ link này.");
+    showQrError("Không tải được ảnh từ link này.");
   };
   els.qrFrame.appendChild(image);
 }
@@ -320,7 +448,7 @@ function showQrError(message) {
 function openQrDialog(item = null) {
   if (!item && state.items.length === 0) state.mode = "text";
   state.editingId = item?.id || null;
-  els.dialogTitle.textContent = item ? "Sửa QR" : "Thêm QR";
+  els.dialogTitle.textContent = item ? "Sửa mục" : "Thêm QR/ảnh";
   els.titleInput.value = item?.title || "";
   els.contentInput.value = item?.kind === "text" ? item.content : "";
   els.urlInput.value = item?.kind === "url" ? item.content : els.urlInput.defaultValue;
@@ -383,7 +511,7 @@ async function saveQr(event) {
 
   if (state.mode === "url") {
     next.content = els.urlInput.value.trim();
-    if (!next.content) return toast("Cần nhập link ảnh QR.", true);
+    if (!next.content) return toast("Cần nhập link ảnh.", true);
   }
 
   if (state.mode === "upload") {
@@ -393,7 +521,7 @@ async function saveQr(event) {
     } else if (oldItem?.image) {
       next.image = oldItem.image;
     } else {
-      return toast("Cần chọn ảnh QR.", true);
+      return toast("Cần chọn ảnh.", true);
     }
   }
 
@@ -403,7 +531,7 @@ async function saveQr(event) {
     closeQrDialog();
     persist();
     render();
-    toast("Đã cập nhật QR.");
+    toast("Đã cập nhật.");
     return;
   }
 
@@ -412,7 +540,7 @@ async function saveQr(event) {
   closeQrDialog();
   persist();
   render();
-  toast("Đã thêm QR.");
+  toast("Đã thêm.");
 }
 
 function fileToDataUrl(file) {
@@ -462,12 +590,12 @@ function downloadCurrentImage() {
 
   if (item.kind === "text") {
     const canvas = els.qrFrame.querySelector("canvas");
-    if (!canvas) return toast("Chưa có ảnh QR để tải.");
+    if (!canvas) return toast("Chưa có ảnh để tải.");
     const link = document.createElement("a");
     link.href = canvas.toDataURL("image/png");
     link.download = `${safeFilename(item.title)}.png`;
     link.click();
-    toast("Đã tải ảnh QR.");
+    toast("Đã tải ảnh.");
     return;
   }
 
@@ -475,19 +603,19 @@ function downloadCurrentImage() {
   link.href = item.kind === "url" ? item.content : item.image;
   link.download = `${safeFilename(item.title)}.png`;
   link.click();
-  toast("Đã tải ảnh QR.");
+  toast("Đã tải ảnh.");
 }
 
 function deleteCurrent() {
   const item = currentItem();
   if (!item) return;
-  const ok = confirm(`Xóa QR "${item.title}"?`);
+  const ok = confirm(`Xóa "${item.title}"?`);
   if (!ok) return;
   state.items = state.items.filter((entry) => entry.id !== item.id);
   state.current = Math.min(state.current, state.items.length - 1);
   persist();
   render();
-  toast("Đã xóa QR.");
+  toast("Đã xóa.");
 }
 
 function safeFilename(value) {

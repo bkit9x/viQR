@@ -1,8 +1,10 @@
-const CACHE_NAME = "viqr-shell-v1";
+const CACHE_NAME = "viqr-shell-v6";
 const APP_SHELL = [
   "./",
   "./index.html",
+  "./gioi-thieu.html",
   "./styles.css",
+  "./intro.css",
   "./app.js",
   "./site.webmanifest",
   "./favicon.svg",
@@ -12,6 +14,11 @@ const APP_SHELL = [
   "./apple-touch-icon.png",
   "./android-chrome-192x192.png",
   "./android-chrome-512x512.png",
+  "./images/kha.is-a.dev_viQR_trangChu.png",
+  "./images/kha.is-a.dev_viQR_themQR.png",
+  "./images/kha.is-a.dev_viQR_menu.png",
+  "./images/kha.is-a.dev_viQR_nhapDuLieu.png",
+  "./images/kha.is-a.dev_viQR_xuatDuLieu.png",
 ];
 
 self.addEventListener("install", (event) => {

@@ -662,6 +662,13 @@ p {
   transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease, color .16s ease;
 }
 
+.menu-item small {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .menu-item:hover {
   border-color: color-mix(in srgb, var(--brand) 48%, var(--line));
   color: var(--brand);
@@ -672,6 +679,21 @@ p {
 .field {
   display: grid;
   gap: 8px;
+}
+
+.check-field {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: color-mix(in srgb, var(--ink) 86%, var(--muted));
+  font-weight: 800;
+}
+
+.check-field input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--brand);
 }
 
 .field > span {
@@ -788,6 +810,28 @@ textarea:focus {
 .hint {
   color: var(--muted);
   line-height: 1.5;
+}
+
+.lock-dialog::backdrop {
+  background: color-mix(in srgb, #000 72%, var(--bg));
+  backdrop-filter: blur(10px) saturate(1.08);
+}
+
+.lock-head {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.lock-head svg {
+  width: 44px;
+  height: 44px;
+  color: var(--brand);
+}
+
+.lock-submit {
+  width: 100%;
 }
 
 .toast {
